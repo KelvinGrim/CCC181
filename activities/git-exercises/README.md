@@ -1,8 +1,8 @@
 # Git Exercises
 
 **Course:** CCC181  
-**Student Name:** <Gomez>, <KelvinChris>
-**Student ID:** <20240878>  
+**Student Name:** Gomez, Kelvin Chris
+**Student ID:** 20240878
 
 ## Activity Description
 
