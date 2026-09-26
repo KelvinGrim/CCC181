@@ -51,7 +51,27 @@ activities/git-exercises/
 ├── README.md
 ├── Gomez_KelvinChris_01.png
 ├── Gomez_KelvinChris_02.png
-└── Gomez_KelvinChris_03.png
+├── Gomez_KelvinChris_03.png
+├── Gomez_KelvinChris_04.png
+├── Gomez_KelvinChris_05.png
+├── Gomez_KelvinChris_06.png
+├── Gomez_KelvinChris_07.png
+├── Gomez_KelvinChris_08.png
+├── Gomez_KelvinChris_09.png
+├── Gomez_KelvinChris_10.png
+├── Gomez_KelvinChris_11.png
+├── Gomez_KelvinChris_12.png
+├── Gomez_KelvinChris_13.png
+├── Gomez_KelvinChris_14.png
+├── Gomez_KelvinChris_15.png
+├── Gomez_KelvinChris_16.png
+├── Gomez_KelvinChris_17.png
+├── Gomez_KelvinChris_18.png
+├── Gomez_KelvinChris_19.png
+├── Gomez_KelvinChris_20.png
+├── Gomez_KelvinChris_21.png
+├── Gomez_KelvinChris_22.png
+└── Gomez_KelvinChris_23.png
 ```
 
 ## Declaration
