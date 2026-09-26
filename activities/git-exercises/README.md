@@ -1,7 +1,7 @@
 # Git Exercises
 
 **Course:** CCC181  
-**Student Name:** Gomez, Kelvin Chris
+**Student Name:** Gomez, Kelvin Chris         
 **Student ID:** 20240878
 
 ## Activity Description
