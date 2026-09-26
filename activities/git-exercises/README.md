@@ -16,9 +16,30 @@ My Git configuration uses my student ID number without the hyphen, as instructed
 
 | Exercise No. | Exercise Title | Screenshot File |
 |---|---|---|
-| 01 | <Exercise Title> | `<lastname>_<firstname>_01.png` |
-| 02 | <Exercise Title> | `<lastname>_<firstname>_02.png` |
-| 03 | <Exercise Title> | `<lastname>_<firstname>_03.png` |
+| 01 | Master | `Gomez_KelvinChris_01.png` |
+| 02 | Commit one file | `Gomez_KelvinChris_02.png` |
+| 03 | Commit one file of two currently staged | `Gomez_KelvinChris_03.png` |
+| 04 | Ignore unwanted files | `Gomez_KelvinChris_04.png` |
+| 05 | Ignore unwanted files | `Gomez_KelvinChris_05.png` |
+| 06 | Ignore unwanted files | `Gomez_KelvinChris_06.png` |
+| 07 | Ignore unwanted files | `Gomez_KelvinChris_07.png` |
+| 08 | Ignore unwanted files | `Gomez_KelvinChris_08.png` |
+| 09 | Ignore unwanted files | `Gomez_KelvinChris_09.png` |
+| 10 | Ignore unwanted files | `Gomez_KelvinChris_10.png` |
+| 11 | Ignore unwanted files | `Gomez_KelvinChris_11.png` |
+| 12 | Ignore unwanted files | `Gomez_KelvinChris_12.png` |
+| 13 | Ignore unwanted files | `Gomez_KelvinChris_13.png` |
+| 14 | Ignore unwanted files | `Gomez_KelvinChris_14.png` |
+| 15 | Ignore unwanted files | `Gomez_KelvinChris_15.png` |
+| 16 | Ignore unwanted files | `Gomez_KelvinChris_16.png` |
+| 17 | Ignore unwanted files | `Gomez_KelvinChris_17.png` |
+| 18 | Ignore unwanted files | `Gomez_KelvinChris_18.png` |
+| 19 | Ignore unwanted files | `Gomez_KelvinChris_19.png` |
+| 20 | Ignore unwanted files | `Gomez_KelvinChris_20.png` |
+| 21 | Ignore unwanted files | `Gomez_KelvinChris_21.png` |
+| 22 | Ignore unwanted files | `Gomez_KelvinChris_22.png` |
+| 23 | Ignore unwanted files | `Gomez_KelvinChris_23.png` |
+
 
 > Add, remove, or update rows based on the exercises you completed.
 
