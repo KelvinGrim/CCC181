@@ -7,6 +7,7 @@ then open http://127.0.0.1:5000
 from flask import Flask, abort, redirect, render_template, request, url_for
 
 app = Flask(__name__)
+app.secret_key = "dev-only-change-me"
 
 # Sample data for the demo. It lives in memory, so it resets every time the
 # server restarts. A real app would save tickets in a database later.
@@ -63,6 +64,15 @@ def join():
         return redirect(url_for("ticket", ticket_id=number))
 
     return render_template("join.html")
+
+
+@app.route("/join")
+def join_form():
+    return render_template("join.html")
+
+@app.route("/staff")
+def staff_dashboard():
+    return "Staff dashboard coming soon"
 
 
 @app.route("/hello")
