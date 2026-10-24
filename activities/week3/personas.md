@@ -3,7 +3,7 @@
 
 | | |
 | --- | --- |
-| **Photo or sketch** | ![Jill Royce](/workspaces/CCC181/activities/week3/Jill Royce.jpg) |
+| **Photo or sketch** | ![Jill Royce](/workspaces/CCC181/activities/week3/picture/Jill Royce.jpg) |
 | **Age, role and background** | 21 years old, a 3rd-year business student, has back-to-back classes, has organizational duties.|
 | **Goals** | She wants to join the queue while she is studying for her classes, she wants to work her duties as an organization member instead of being stuck on the bank waiting for her number to be called. |
 | **Frustrations** | She doesn't know how long the wait will be, so she can't plan her other responsibilities around it. She also worries that if she steps away to go to class, she will miss her number and will get another number again. |

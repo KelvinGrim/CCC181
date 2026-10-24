@@ -4,7 +4,7 @@ Run it with:
     flask --app app run --debug
 then open http://127.0.0.1:5000
 """
-from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 app.secret_key = "dev-only-change-me"
@@ -56,6 +56,7 @@ def ticket(ticket_id):
 
     return render_template("ticket.html", ticket=t, service=service,
                            ahead=len(ahead), queue=queue, near=near)
+
 
 @app.post("/queue/<int:ticket_id>/leave")
 def leave(ticket_id):
@@ -139,10 +140,12 @@ def ticket_status(ticket_id):
     t = next((t for t in TICKETS if t["number"] == ticket_id), None)
     if t is None:
         abort(404)
-    ahead = sum(1 for x in TICKETS
-                if x["service_id"] == t["service_id"]
-                and x["status"] == "waiting" and x["number"] < t["number"])
-    return {"status": t["status"], "ahead": ahead}
+    queue = [x for x in TICKETS if x["status"] in ("waiting", "called")]
+    ahead = len([x for x in queue
+                 if x["status"] == "waiting" and x["number"] < t["number"]])
+    near = t["status"] == "waiting" and ahead + 1 <= NOTIFY_AT
+    return jsonify(status=t["status"], ahead=ahead, near=near,
+                   queue=[[x["number"], x["status"]] for x in queue])
 
 @app.route("/hello")
 def hello():

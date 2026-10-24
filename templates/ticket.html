@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Ticket #{{ ticket.number }} · BankQ{% endblock %}
+{% block title %}Ticket #{{ ticket.number }} · BnkQ{% endblock %}
 
 {% block content %}
 {% set alert = near or ticket.status == "called" %}
@@ -39,50 +39,45 @@
 
 <div class="row g-3">
 
-  {# LEFT: ALERT (replaces the queue list on laptop) + QUEUE LIST #}
+ {# LEFT: ALERT banner + QUEUE LIST #}
   <div class="col-12 col-lg-8">
 
-    {% if alert %}
-      <div class="card border-danger bg-danger-subtle mb-3" role="alert">
-        <div class="card-body text-center py-5">
-          {% if ticket.status == "called" %}
-            <p class="display-5 fw-bold mb-2">It's your turn!</p>
-            <p class="fs-5 mb-0">Please go to the counter now.</p>
-          {% else %}
-            <p class="display-5 fw-bold mb-2">You're almost up</p>
-            <p class="fs-5 mb-0">Please get ready to go to the counter.</p>
-          {% endif %}
-        </div>
+        {% if alert %}
+      <div class="alert {{ 'alert-success' if ticket.status == 'called' else 'alert-danger' }} border-3 text-center py-5 mb-3 shadow"
+           role="alert" style="border-style: solid;">
+        {% if ticket.status == "called" %}
+          <p class="display-4 fw-bold mb-2">🔔 It's your turn!</p>
+          <p class="fs-3 mb-0">Please go to the counter now.</p>
+        {% else %}
+          <p class="display-4 fw-bold mb-2">⚠️ You're almost up</p>
+          <p class="fs-3 mb-0">Please get ready to go to the counter.</p>
+        {% endif %}
       </div>
     {% endif %}
 
-    {# On laptop the queue list is hidden while the alert shows; on phone it stays, smaller #}
-    <div class="{% if alert %}d-lg-none{% endif %}">
-      <h2 class="h5">Queue list</h2>
-      <div class="table-responsive">
-        <table class="table align-middle {% if alert %}table-sm{% endif %}">
-          <caption>Tickets waiting, in order</caption>
-          <thead>
-            <tr>
-              <th scope="col">Ticket</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for t in queue %}
-            <tr {% if t.number == ticket.number %}class="table-primary fw-bold"{% endif %}>
-              <td>#{{ t.number }}{% if t.number == ticket.number %} (you){% endif %}</td>
-              <td>{{ t.status|capitalize }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="2">No tickets in this queue.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+    <h2 class="h5">Queue list</h2>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <caption>Tickets waiting, in order</caption>
+        <thead>
+          <tr>
+            <th scope="col">Ticket</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in queue %}
+          <tr {% if t.number == ticket.number %}class="table-primary fw-bold"{% endif %}>
+            <td>#{{ t.number }}{% if t.number == ticket.number %} (you){% endif %}</td>
+            <td>{{ t.status|capitalize }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="2">No tickets in this queue.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
-
   {# RIGHT: INSTRUCTIONS #}
   <div class="col-12 col-lg-4">
     <div class="card h-100">
@@ -107,18 +102,34 @@
 
 {% block scripts %}
 <script>
-  // Every 5 seconds, fetch this same page and swap in the fresh <main> content.
-  setInterval(async () => {
+  let lastHtml = null;
+
+  async function refreshPage() {
     try {
       const res = await fetch(window.location.href, { cache: "no-store" });
       if (!res.ok) return;
-      const html = new DOMParser().parseFromString(await res.text(), "text/html");
-      const fresh = html.querySelector("main");
+      const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+      const fresh = doc.querySelector("main");
       const current = document.querySelector("main");
-      if (fresh && current) current.innerHTML = fresh.innerHTML;
-    } catch (e) {
-      /* offline or server restarting: try again next time */
+      if (!fresh || !current) return;
+
+      const html = fresh.innerHTML;
+      if (lastHtml !== null && html !== lastHtml) {
+        current.innerHTML = html;
+
+        // Vibrate when near the front or called (only on phones that allow it)
+        const text = html.toLowerCase();
+        if ((text.includes("almost up") || text.includes("your turn")) && navigator.vibrate) {
+          navigator.vibrate([200, 100, 200]);
+        }
+      }
+      lastHtml = html;
+    } catch (err) {
+      console.warn("Could not refresh", err);
     }
-  }, 5000);
+  }
+
+  refreshPage();
+  setInterval(refreshPage, 5000);
 </script>
 {% endblock %}
