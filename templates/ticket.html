@@ -1,9 +1,44 @@
 {% extends "base.html" %}
-
-{% block title %}Ticket #{{ ticket.number }} · ClinicQ{% endblock %}
+{% block title %}Ticket #{{ ticket.number }} · BankQ{% endblock %}
 
 {% block content %}
-  <h2>Ticket #{{ ticket.number }}</h2>
-  <p>Hi {{ ticket.name }}! You are <strong>number {{ position }}</strong> in the queue.</p>
-  <p><a href="{{ url_for('index') }}">&larr; Back to the queue</a></p>
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card text-center shadow-sm">
+      <div class="card-body p-4">
+        <p class="text-body-secondary mb-0">Your ticket</p>
+        <p class="display-1 fw-bold mb-0">#{{ ticket.number }}</p>
+        <p class="fs-5">{{ service.name }}</p>
+
+        <div id="live-status" aria-live="polite">
+          {% set badge = {"waiting": "warning", "called": "success",
+                          "served": "secondary", "no-show": "danger"} %}
+          <span class="badge text-bg-{{ badge.get(ticket.status, 'secondary') }} fs-6">
+            {{ ticket.status|capitalize }}
+          </span>
+
+          {% if ticket.status == "waiting" %}
+            <p class="fs-4 mt-3 mb-0">
+              {% if ahead == 0 %}
+                You're next!
+              {% elif ahead == 1 %}
+                1 person ahead of you
+              {% else %}
+                {{ ahead }} people ahead of you
+              {% endif %}
+            </p>
+          {% elif ticket.status == "called" %}
+            <p class="fs-4 mt-3 mb-0">It's your turn. Please go to the counter.</p>
+          {% endif %}
+        </div>
+
+        {% if ticket.status == "waiting" %}
+          <form method="post" action="{{ url_for('leave', ticket_id=ticket.number) }}" class="mt-4">
+            <button type="submit" class="btn btn-outline-danger btn-sm">Leave the queue</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
