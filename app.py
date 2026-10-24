@@ -4,7 +4,7 @@ Run it with:
     flask --app app run --debug
 then open http://127.0.0.1:5000
 """
-from flask import Flask, abort, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 app.secret_key = "dev-only-change-me"
@@ -50,25 +50,36 @@ def ticket(ticket_id):
     abort(404)  # no ticket with that number
 
 
-@app.route("/join", methods=["GET", "POST"])
-def join():
-    # GET: show the empty form. POST: the form was submitted.
-    if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        if not name:
-            return render_template("join.html", error="Please enter your name.")
 
-        number = TICKETS[-1]["number"] + 1 if TICKETS else 1
-        TICKETS.append({"number": number, "name": name})
-        # Redirect after POST so refreshing the page doesn't join twice.
-        return redirect(url_for("ticket", ticket_id=number))
-
-    return render_template("join.html")
-
-
-@app.route("/join")
+@app.get("/join")
 def join_form():
-    return render_template("join.html")
+    return render_template("join.html", services=SERVICES, form={})
+
+
+@app.post("/join")
+def join():
+    form = request.form
+    name = form.get("name", "").strip()
+    email = form.get("email", "").strip().lower()
+    service_id = form.get("service_id", type=int)
+
+    errors = {}
+    if not name:
+        errors["name"] = "Enter your name."
+    if "@" not in email:
+        errors["email"] = "Enter a valid email address."
+    if service_id not in [s["id"] for s in SERVICES]:
+        errors["service_id"] = "Choose a service."
+
+    if errors:
+        flash("Please fix the highlighted fields.", "danger")
+        return render_template("join.html", services=SERVICES, form=form, errors=errors), 400
+
+    number = TICKETS[-1]["number"] + 1 if TICKETS else 1
+    TICKETS.append({"number": number, "name": name, "email": email,
+                    "service_id": service_id, "status": "waiting"})
+    flash(f"You joined the queue. Your ticket is #{number}.", "success")
+    return redirect(url_for("ticket", ticket_id=number))
 
 @app.route("/staff")
 def staff_dashboard():
