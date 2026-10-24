@@ -1,12 +1,31 @@
 {% extends "base.html" %}
-{% block title %}Join the queue · BnkQ{% endblock %}
+{% block title %}Join the queue · BankQ{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-12 col-md-8 col-lg-6">
-    <h1 class="h3 mb-3">Join the queue</h1>
+  <div class="col-12 col-md-10 col-lg-8">
+    <h1 class="h3 mb-2">Join the queue</h1>
+    <p class="mb-4">Choose your service, then enter your name and email. We will show your place in line.</p>
 
     <form method="post" action="{{ url_for('join') }}" novalidate id="join-form">
+
+      <fieldset class="mb-4">
+        <legend class="form-label fs-6">Service</legend>
+        <div class="row g-2">
+          {% for s in services %}
+          <div class="col-12 col-md-4">
+            <input type="radio" class="btn-check" name="service_id" id="service-{{ s.id }}"
+                   value="{{ s.id }}" required
+                   {% if form.get('service_id') == s.id|string %}checked{% endif %}>
+            <label class="btn btn-outline-primary w-100 py-3" for="service-{{ s.id }}">{{ s.name }}</label>
+          </div>
+          {% endfor %}
+        </div>
+        {% if errors and errors.service_id %}
+          <div class="text-danger small mt-2">{{ errors.service_id }}</div>
+        {% endif %}
+      </fieldset>
+
       <div class="mb-3">
         <label for="name" class="form-label">Your name</label>
         <input id="name" name="name" type="text" autocomplete="name" required
@@ -18,7 +37,7 @@
         {% endif %}
       </div>
 
-      <div class="mb-3">
+      <div class="mb-4">
         <label for="email" class="form-label">Your email</label>
         <input id="email" name="email" type="email" autocomplete="email" required
                class="form-control {% if errors and errors.email %}is-invalid{% endif %}"
@@ -29,22 +48,7 @@
         {% endif %}
       </div>
 
-      <div class="mb-3">
-        <label for="service_id" class="form-label">Service</label>
-        <select id="service_id" name="service_id" required
-                class="form-select {% if errors and errors.service_id %}is-invalid{% endif %}">
-          <option value="">Choose a service…</option>
-          {% for s in services %}
-            <option value="{{ s.id }}"
-              {% if form.get('service_id') == s.id|string %}selected{% endif %}>{{ s.name }}</option>
-          {% endfor %}
-        </select>
-        {% if errors and errors.service_id %}
-          <div class="invalid-feedback">{{ errors.service_id }}</div>
-        {% endif %}
-      </div>
-
-      <button type="submit" class="btn btn-primary w-100">Get a ticket</button>
+      <button type="submit" class="btn btn-primary btn-lg w-100">Get my ticket</button>
     </form>
   </div>
 </div>

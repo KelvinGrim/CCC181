@@ -1,16 +1,10 @@
 {% extends "base.html" %}
+{% block title %}BankQ{% endblock %}
 
 {% block content %}
-  <p>Hello, {{ name }}!</p>
-
-  <p><a class="button" href="{{ url_for('join') }}">Join the queue</a></p>
-
-  <h2>Tickets in the queue</h2>
-  <ul class="tickets">
-    {% for t in tickets %}
-      <li><a href="{{ url_for('ticket', ticket_id=t.number) }}">#{{ t.number }}</a> {{ t.name }}</li>
-    {% else %}
-      <li>The queue is empty.</li>
-    {% endfor %}
-  </ul>
+<div class="text-center py-5">
+  <h1 class="display-4 fw-bold">BankQ</h1>
+  <p class="lead mb-4">Join the bank queue from your phone and see your place in line without waiting at the branch.</p>
+  <a class="btn btn-primary btn-lg" href="{{ url_for('join_form') }}">Join the queue</a>
+</div>
 {% endblock %}

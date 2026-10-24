@@ -2,43 +2,123 @@
 {% block title %}Ticket #{{ ticket.number }} · BankQ{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-12 col-md-8 col-lg-6">
-    <div class="card text-center shadow-sm">
-      <div class="card-body p-4">
-        <p class="text-body-secondary mb-0">Your ticket</p>
+{% set alert = near or ticket.status == "called" %}
+
+{# TICKET NUMBER + TICKET STATUS (side by side on laptop, stacked on phone) #}
+<div class="row g-3 mb-3">
+  <div class="col-12 col-md-6">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <p class="text-body-secondary mb-0">Ticket number</p>
         <p class="display-1 fw-bold mb-0">#{{ ticket.number }}</p>
-        <p class="fs-5">{{ service.name }}</p>
+        <p class="mb-0">{{ service.name }}</p>
+      </div>
+    </div>
+  </div>
 
-        <div id="live-status" aria-live="polite">
-          {% set badge = {"waiting": "warning", "called": "success",
-                          "served": "secondary", "no-show": "danger"} %}
-          <span class="badge text-bg-{{ badge.get(ticket.status, 'secondary') }} fs-6">
-            {{ ticket.status|capitalize }}
-          </span>
+  <div class="col-12 col-md-6">
+    <div class="card h-100 text-center">
+      <div class="card-body" id="live-status" aria-live="polite">
+        <p class="text-body-secondary mb-1">Ticket status</p>
+        {% set badge = {"waiting": "warning", "called": "success",
+                        "served": "secondary", "no-show": "danger"} %}
+        <span class="badge text-bg-{{ badge.get(ticket.status, 'secondary') }} fs-5">
+          {{ ticket.status|capitalize }}
+        </span>
+        {% if ticket.status == "waiting" %}
+          <p class="fs-3 fw-bold mt-2 mb-0">
+            {% if ahead == 0 %}You're next!
+            {% elif ahead == 1 %}1 person ahead of you
+            {% else %}{{ ahead }} people ahead of you{% endif %}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 
-          {% if ticket.status == "waiting" %}
-            <p class="fs-4 mt-3 mb-0">
-              {% if ahead == 0 %}
-                You're next!
-              {% elif ahead == 1 %}
-                1 person ahead of you
-              {% else %}
-                {{ ahead }} people ahead of you
-              {% endif %}
-            </p>
-          {% elif ticket.status == "called" %}
-            <p class="fs-4 mt-3 mb-0">It's your turn. Please go to the counter.</p>
+<div class="row g-3">
+
+  {# LEFT: ALERT (replaces the queue list on laptop) + QUEUE LIST #}
+  <div class="col-12 col-lg-8">
+
+    {% if alert %}
+      <div class="card border-danger bg-danger-subtle mb-3" role="alert">
+        <div class="card-body text-center py-5">
+          {% if ticket.status == "called" %}
+            <p class="display-5 fw-bold mb-2">It's your turn!</p>
+            <p class="fs-5 mb-0">Please go to the counter now.</p>
+          {% else %}
+            <p class="display-5 fw-bold mb-2">You're almost up</p>
+            <p class="fs-5 mb-0">Please get ready to go to the counter.</p>
           {% endif %}
         </div>
+      </div>
+    {% endif %}
 
+    {# On laptop the queue list is hidden while the alert shows; on phone it stays, smaller #}
+    <div class="{% if alert %}d-lg-none{% endif %}">
+      <h2 class="h5">Queue list</h2>
+      <div class="table-responsive">
+        <table class="table align-middle {% if alert %}table-sm{% endif %}">
+          <caption>Tickets waiting, in order</caption>
+          <thead>
+            <tr>
+              <th scope="col">Ticket</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in queue %}
+            <tr {% if t.number == ticket.number %}class="table-primary fw-bold"{% endif %}>
+              <td>#{{ t.number }}{% if t.number == ticket.number %} (you){% endif %}</td>
+              <td>{{ t.status|capitalize }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2">No tickets in this queue.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# RIGHT: INSTRUCTIONS #}
+  <div class="col-12 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5">Instructions</h2>
+        <ul class="ps-3 mb-3">
+          <li>Keep this page open. It shows when it is your turn.</li>
+          <li>When your status says Called, go to the counter.</li>
+          <li>If you can't make it, leave the queue.</li>
+        </ul>
         {% if ticket.status == "waiting" %}
-          <form method="post" action="{{ url_for('leave', ticket_id=ticket.number) }}" class="mt-4">
+          <form method="post" action="{{ url_for('leave', ticket_id=ticket.number) }}">
             <button type="submit" class="btn btn-outline-danger btn-sm">Leave the queue</button>
           </form>
         {% endif %}
       </div>
     </div>
   </div>
+
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Every 5 seconds, fetch this same page and swap in the fresh <main> content.
+  setInterval(async () => {
+    try {
+      const res = await fetch(window.location.href, { cache: "no-store" });
+      if (!res.ok) return;
+      const html = new DOMParser().parseFromString(await res.text(), "text/html");
+      const fresh = html.querySelector("main");
+      const current = document.querySelector("main");
+      if (fresh && current) current.innerHTML = fresh.innerHTML;
+    } catch (e) {
+      /* offline or server restarting: try again next time */
+    }
+  }, 5000);
+</script>
 {% endblock %}

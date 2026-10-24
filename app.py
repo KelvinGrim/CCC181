@@ -46,12 +46,16 @@ def ticket(ticket_id):
     t = next((t for t in TICKETS if t["number"] == ticket_id), None)
     if t is None:
         abort(404)
-    ahead = [x for x in TICKETS
-             if x["service_id"] == t["service_id"]
-             and x["status"] == "waiting"
-             and x["number"] < t["number"]]
+    queue = [x for x in TICKETS if x["status"] in ("waiting", "called")]
+    ahead = [x for x in queue
+             if x["status"] == "waiting" and x["number"] < t["number"]]
     service = next(s for s in SERVICES if s["id"] == t["service_id"])
-    return render_template("ticket.html", ticket=t, service=service, ahead=len(ahead))
+
+    position = len(ahead) + 1
+    near = t["status"] == "waiting" and position <= NOTIFY_AT
+
+    return render_template("ticket.html", ticket=t, service=service,
+                           ahead=len(ahead), queue=queue, near=near)
 
 @app.post("/queue/<int:ticket_id>/leave")
 def leave(ticket_id):
@@ -93,10 +97,52 @@ def join():
     flash(f"You joined the queue. Your ticket is #{number}.", "success")
     return redirect(url_for("ticket", ticket_id=number))
 
-@app.route("/staff")
+@app.get("/staff")
 def staff_dashboard():
-    return "Staff dashboard coming soon"
+    service_id = request.args.get("service_id", type=int)
+    queue = [t for t in TICKETS if t["status"] in ("waiting", "called")]
+    if service_id:
+        queue = [t for t in queue if t["service_id"] == service_id]
+    names = {s["id"]: s["name"] for s in SERVICES}
 
+    current = next((t for t in queue if t["status"] == "called"), None)
+    up_next = next((t for t in queue if t["status"] == "waiting"), None)
+
+    # ★ feature: how many are waiting per service
+    waiting_counts = {s["name"]: sum(1 for t in TICKETS
+                                     if t["status"] == "waiting" and t["service_id"] == s["id"])
+                      for s in SERVICES}
+
+    return render_template("staff.html", queue=queue, services=SERVICES, names=names,
+                           selected=service_id, current=current, up_next=up_next,
+                           waiting_counts=waiting_counts)
+
+
+@app.post("/staff/tickets/<int:ticket_id>/<action>")
+def staff_action(ticket_id, action):
+    new_status = {"call": "called", "serve": "served", "no-show": "no-show"}.get(action)
+    t = next((t for t in TICKETS if t["number"] == ticket_id), None)
+    if t is None or new_status is None:
+        abort(404)
+
+    # Finish the current customer before calling someone else
+    if action == "call" and any(x["status"] == "called" for x in TICKETS):
+        flash("Mark the current ticket as Served or No-show before calling the next one.", "warning")
+        return redirect(url_for("staff_dashboard"))
+
+    t["status"] = new_status
+    flash(f"Ticket #{ticket_id} marked {new_status}.", "info")
+    return redirect(url_for("staff_dashboard"))
+
+@app.get("/queue/<int:ticket_id>/status.json")
+def ticket_status(ticket_id):
+    t = next((t for t in TICKETS if t["number"] == ticket_id), None)
+    if t is None:
+        abort(404)
+    ahead = sum(1 for x in TICKETS
+                if x["service_id"] == t["service_id"]
+                and x["status"] == "waiting" and x["number"] < t["number"])
+    return {"status": t["status"], "ahead": ahead}
 
 @app.route("/hello")
 def hello():

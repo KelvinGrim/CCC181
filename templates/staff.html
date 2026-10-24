@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Staff dashboard · BankQ{% endblock %}
+
+{% block content %}
+{# COUNTER TEXT #}
+<h1 class="h4 mb-1">Counter 2</h1>
+<p class="mb-3">
+  {# ★ waiting count per service #}
+  {% for name, count in waiting_counts.items() %}
+    <span class="badge text-bg-light border me-1">{{ name }}: {{ count }} waiting</span>
+  {% endfor %}
+</p>
+
+<div class="row g-3">
+
+  {# RIGHT on laptop, TOP on phone: the actions #}
+  <div class="col-12 col-lg-6 order-1 order-lg-2">
+
+    {# NOW SERVING #}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h2 class="h6 text-body-secondary">Now serving</h2>
+        {% if current %}
+          <p class="fs-2 fw-bold mb-0">#{{ current.number }}</p>
+          <p class="mb-0">
+            {{ current.name }} · {{ names[current.service_id] }}
+            <span class="badge text-bg-success">Called</span>
+          </p>
+        {% else %}
+          <p class="mb-0">No one has been called yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# SERVED / NO-SHOW #}
+    <div class="d-flex gap-2 mb-3">
+      {% if current %}
+        <form method="post" class="flex-fill"
+              action="{{ url_for('staff_action', ticket_id=current.number, action='serve') }}">
+          <button class="btn btn-success btn-lg w-100 py-3" type="submit"
+                  aria-label="Mark ticket {{ current.number }} as served">Served</button>
+        </form>
+        <form method="post" class="flex-fill"
+              action="{{ url_for('staff_action', ticket_id=current.number, action='no-show') }}">
+          <button class="btn btn-outline-danger btn-lg w-100 py-3" type="submit"
+                  aria-label="Mark ticket {{ current.number }} as no-show">No-show</button>
+        </form>
+      {% else %}
+        <button class="btn btn-success btn-lg flex-fill py-3" type="button" disabled>Served</button>
+        <button class="btn btn-outline-danger btn-lg flex-fill py-3" type="button" disabled>No-show</button>
+      {% endif %}
+    </div>
+
+        {# CALL NEXT #}
+    {% if up_next and not current %}
+      <form method="post"
+            action="{{ url_for('staff_action', ticket_id=up_next.number, action='call') }}">
+        <button class="btn btn-primary w-100 py-4 fs-2" type="submit">Call next</button>
+      </form>
+    {% else %}
+      <button class="btn btn-primary w-100 py-4 fs-2" type="button" disabled>Call next</button>
+      <p class="small text-body-secondary mt-2 mb-0">
+        {% if current %}Mark #{{ current.number }} as Served or No-show first.
+        {% else %}No one is waiting.{% endif %}
+      </p>
+    {% endif %}
+
+    {# UP NEXT #}
+    <div class="border rounded px-3 py-2 mt-3">
+      <span class="text-body-secondary">Up next:</span>
+      {% if up_next %}
+        <strong>#{{ up_next.number }}</strong> · {{ up_next.name }} · {{ names[up_next.service_id] }}
+      {% else %}
+        No one is waiting.
+      {% endif %}
+    </div>
+  </div>
+
+  {# LEFT on laptop, BOTTOM on phone: the queue list #}
+  <div class="col-12 col-lg-6 order-2 order-lg-1">
+    <h2 class="h5">Queue list</h2>
+
+    <form method="get" class="d-flex gap-2 mb-3">
+      <label for="service_id" class="visually-hidden">Service</label>
+      <select id="service_id" name="service_id" class="form-select form-select-sm">
+        <option value="">All services</option>
+        {% for s in services %}
+          <option value="{{ s.id }}" {% if selected == s.id %}selected{% endif %}>{{ s.name }}</option>
+        {% endfor %}
+              </select>
+      <button class="btn btn-outline-primary btn-sm" type="submit">Filter</button>
+    </form>
+
+    {% if queue %}
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <caption>Waiting and called tickets, in order</caption>
+        <thead>
+          <tr>
+            <th scope="col">Ticket</th>
+            <th scope="col">Service</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in queue %}
+          <tr {% if up_next and t.number == up_next.number %}class="table-active"{% endif %}>
+            <td>
+              <strong>#{{ t.number }}</strong><br>
+              <small class="text-body-secondary">{{ t.name }}</small>
+            </td>
+            <td class="small">{{ names[t.service_id] }}</td>
+            <td>
+              <span class="badge text-bg-{{ 'success' if t.status == 'called' else 'warning' }}">
+                {{ t.status|capitalize }}
+              </span>
+              {% if up_next and t.number == up_next.number %}
+                <br><span class="badge text-bg-secondary mt-1">Up next</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="alert alert-secondary">No one is waiting right now.</div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
