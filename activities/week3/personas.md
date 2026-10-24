@@ -47,7 +47,7 @@ Thursday afternoon. Jill is in between her 2hr long econometrics class and a mee
 
 ### Scenario
 
-It's mid-afternoon at the branch, and Isabella has just finished with a customer at Counter 2. She needs to know who is next without searching through papers or asking around. She glances at the BankQ staff dashboard and sees the waiting tickets her counter can serve, in order: #11 for Deposit / Withdrawal, then #12 for Account opening. She clicks **Call next**, and ticket #11 changes to "called" at Counter 2 while the customer's phone tells them to proceed to her counter. The customer arrives, she serves them, and she marks the ticket served. When a called customer doesn't show up, she marks the ticket no-show and calls the next person, so her line keeps moving.
+It's mid-afternoon at the branch, and Isabella has just finished with a customer at Counter 2. She needs to know who is next without searching through papers or asking around. She glances at the BankQ staff dashboard and sees the waiting tickets her counter can serve, in order: #11 for Deposit / Withdrawal, then #12 for Account opening. She clicks the call next button, and ticket #11 changes to "called" at Counter 2 while the customer's phone tells them to proceed to her counter. The customer arrives, she serves them, and she marks the ticket served. When a called customer doesn't show up, she marks the ticket no-show and calls the next person, so her line keeps moving.
 
 ### Top tasks in the app
 
