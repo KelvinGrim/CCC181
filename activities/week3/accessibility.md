@@ -19,7 +19,7 @@ When I was doint it, I accomplished all the tasks, I can reach the controls, it 
 | Every input has a visible label | ✅ | n/a | ✅ |
 | Error messages say what to do, in text | ✅ | n/a | n/a |
 | Status in words, not only color | n/a | ✅ | ✅ |
-| Readable at 375 px, no sideways page scroll | | | |
+| Readable at 375 px, no sideways page scroll |✅ | ✅| ✅|
 | Buttons about 44 × 44 px | ✅|✅ |✅ |
 | One h1, headings in order |✅ |✅ |✅ |
 | html lang set | ✅ | ✅ | ✅ |
