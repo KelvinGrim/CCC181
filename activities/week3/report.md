@@ -24,29 +24,29 @@ Top tasks: see the waiting tickets in order (FR-04), call the next customer (FR-
 
 ## Screens
 ![Join on a phone](Screenshots/Join-phone.png)
+
 Jill uses Join on her phone to choose a service and get a ticket (FR-01).
 
-__
 ![Join on a laptop](Screenshots/Join.png)
+
 The same Join screen on a laptop (FR-01).
 
-__
 ![My place on a phone](Screenshots/my-place-phone.png)
+
 Jill checks her ticket number, status, position and alert here (FR-02, FR-03).
 
-__
 ![My place on a laptop](Screenshots/my-place.png)
+
 The same My place screen on a laptop, with the queue list and instructions side by side (FR-02, FR-03).
 
-__
 ![Staff dashboard on a phone](Screenshots/staff-dashboard-phone.png)
+
 Isabella's dashboard on a phone, with Now serving and Call next first (FR-04, FR-05, FR-07, FR-08).
 
-__
 ![Staff dashboard on a laptop](Screenshots/staff-dashboard.png)
+
 Isabella's main screen on a laptop at Counter 2, with the queue on the left and the actions on the right (FR-04, FR-05, FR-07, FR-08).
 
-__
 ## Design decisions
 1. **Ticket number and position are the largest things on My place.** Jill checks her phone between tasks (her persona and rule 1), so the number and "N people ahead of you" are readable in a glance, with the status written as a word.
 2. **Call next is the biggest button, and Served and No-show are the same size next to Now serving.** Isabella has only a few seconds between customers (her rules 1 and 3), so the most frequent action is the easiest to hit, and No-show is beside the ticket she just called.
