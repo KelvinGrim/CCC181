@@ -23,29 +23,29 @@ Top tasks: join the queue by choosing a service (FR-01), check my position and p
 Top tasks: see the waiting tickets in order (FR-04), call the next customer (FR-05), mark a customer as served or no-show (FR-07, FR-08).
 
 ## Screens
-![Join on a phone](Screenshots/Join-phone.png)
-
 Jill uses Join on her phone to choose a service and get a ticket (FR-01).
 
-![Join on a laptop](Screenshots/Join.png)
+![Join on a phone](Screenshots/Join-phone.png)
 
 The same Join screen on a laptop (FR-01).
 
-![My place on a phone](Screenshots/my-place-phone.png)
+![Join on a laptop](Screenshots/Join.png)
 
 Jill checks her ticket number, status, position and alert here (FR-02, FR-03).
 
-![My place on a laptop](Screenshots/my-place.png)
+![My place on a phone](Screenshots/my-place-phone.png)
 
 The same My place screen on a laptop, with the queue list and instructions side by side (FR-02, FR-03).
 
-![Staff dashboard on a phone](Screenshots/staff-dashboard-phone.png)
+![My place on a laptop](Screenshots/my-place.png)
 
 Isabella's dashboard on a phone, with Now serving and Call next first (FR-04, FR-05, FR-07, FR-08).
 
-![Staff dashboard on a laptop](Screenshots/staff-dashboard.png)
+![Staff dashboard on a phone](Screenshots/staff-dashboard-phone.png)
 
 Isabella's main screen on a laptop at Counter 2, with the queue on the left and the actions on the right (FR-04, FR-05, FR-07, FR-08).
+
+![Staff dashboard on a laptop](Screenshots/staff-dashboard.png)
 
 ## Design decisions
 1. **Ticket number and position are the largest things on My place.** Jill checks her phone between tasks (her persona and rule 1), so the number and "N people ahead of you" are readable in a glance, with the status written as a word.
