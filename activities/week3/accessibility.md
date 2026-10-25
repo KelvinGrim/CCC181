@@ -3,9 +3,9 @@
 ## 9a. Lighthouse (mobile, Accessibility)
 | Screen | Score | Screenshot |
 |---|---|---|
-| Join | 97 | activities/week3/pictures/lighthouse join.png |
-| My place | 98 | activities/week3/pictures/lighthouse my-page.png |
-| Staff | 98 | activities/week3/pictures/lighthouse staff-dashboard.png |
+| Join | 97 | screenshots/lighthouse join.png |
+| My place | 98 |  screenshots/lighthouse my-page.png |
+| Staff | 98 |  screenshots/lighthouse staff-dashboard.png |
 
 Issues found and fixed: None
 Anything left under 90 and why: SEO, Page is blocked from indexing, and Document does not have a meta description. Since I am just making my app and currently i don't have any intention to publish this in public so it's okay for me not to fix this yet.
