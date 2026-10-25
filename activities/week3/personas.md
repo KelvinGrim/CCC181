@@ -3,7 +3,7 @@
 
 | | |
 | --- | --- |
-| **Photo or sketch** | ![Jill Royce](screenshots/Jill Royce.jpg) |
+| **Photo or sketch** | ![Jill Royce](Jill-Royce.jpg) |
 | **Age, role and background** | 21 years old, a 3rd-year business student, has back-to-back classes, has organizational duties.|
 | **Goals** | She wants to join the queue while she is studying for her classes, she wants to work her duties as an organization member instead of being stuck on the bank waiting for her number to be called. |
 | **Frustrations** | She doesn't know how long the wait will be, so she can't plan her other responsibilities around it. She also worries that if she steps away to go to class, she will miss her number and will get another number again. |
@@ -37,7 +37,7 @@ Thursday afternoon. Jill is in between her 2hr long econometrics class and a mee
 
 | | |
 | --- | --- |
-| **Photo or sketch** | ![Isabella Roberts]("screenshots/Isabella Roberts.jpg) |
+| **Photo or sketch** | ![Isabella Roberts]("Isabella-Roberts.jpg) |
 | **Age, role and background** | 36 years old, a teller at Counter 2 with several years of experience at the branch. She handles deposits and account opening and serves customers one after another all day. |
 | **Goals** | She wants to know exactly who is next for the services her counter handles, so she can call them quickly and keep her line moving. She wants to spend her time serving customers, not answering "how much longer?" or hunting for the next ticket. |
 | **Frustrations** | Customers who step away and don't return when called waste her time and slow the whole line. She often doesn't know who is next when tickets for different services are mixed together. Customers also crowd her counter and ask about their turn while she is in the middle of a transaction. |
