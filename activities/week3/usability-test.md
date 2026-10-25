@@ -17,4 +17,5 @@ the staff dashboard. It is closed by default so it doesn't push Call next
 down.
 
 Before: activities/week3/Screenshots/before.png
+
 After: activities/week3/Screenshots/after.png
