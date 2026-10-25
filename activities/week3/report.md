@@ -85,3 +85,10 @@ Full notes: [usability-test.md](usability-test.md)
 ## Reflection
 - **Hardest this week:** The hardest task I have tackled this week is making the staff.html from scratch since there is no staff.html yet. Making it look like my wireframe is a challenging task. Making the wireframe also did give me a hard time but because I didn't really read the question as I did 12 total frames, instead of only 6 frames.
 - **What changes in Week 4:** tickets currently live in a Python list, so they reset every time the server restarts. With a database, I will store tickets and their status in a table, calculate "people ahead" with a query instead of looping over a list, and add a counter to each ticket so the staff dashboard can show each counter's own queue.
+
+## Declaration
+- **Used:** Grammarly
+- **What for:** To correct my grammar when typing.
+- **Used:** Google AI Overview, (The AI when searching in google)
+- **What for:** When I am unclear of something I ask google about it.
+
