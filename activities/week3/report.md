@@ -80,7 +80,7 @@ Full notes: [usability-test.md](usability-test.md)
 
 | Before | After |
 |---|---|
-| ![Before](activities/week3/Screenshots/before.png) | ![After](activities/week3/Screenshots/after.png) |
+| ![Before](Screenshots/before.png) | ![After](Screenshots/after.png) |
 
 ## Reflection
 - **Hardest this week:** The hardest task I have tackled this week is making the staff.html from scratch since there is no staff.html yet. Making it look like my wireframe is a challenging task. Making the wireframe also did give me a hard time but because I didn't really read the question as I did 12 total frames, instead of only 6 frames.
