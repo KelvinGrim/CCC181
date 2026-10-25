@@ -7,7 +7,7 @@
 - **Student ID:** 2024-0878
 - **Section:** CS3A
 - **Date:** 24 October 2026
-- **Pull request:** [link to your pull request]
+- **Pull request:** [[link to your pull request]](https://github.com/KelvinGrim/CCC181/pull/3)
 
 ## Personas
 Full details: [personas.md](personas.md)
