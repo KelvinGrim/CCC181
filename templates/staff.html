@@ -32,7 +32,7 @@
         {% if current %}
           <p class="fs-2 fw-bold mb-0">#{{ current.id }}</p>
           <p class="mb-0">
-            {{ current.name }} · {{ names[current.service_id] }}
+            {{ current.user.name }} · {{ current.service.name }}
             <span class="badge text-bg-success">Called</span>
           </p>
         {% else %}
@@ -78,7 +78,7 @@
     <div class="border rounded px-3 py-2 mt-3">
       <span class="text-body-secondary">Up next:</span>
       {% if up_next %}
-        <strong>#{{ up_next.id }}</strong> · {{ up_next.name }} · {{ names[up_next.service_id] }}
+        <strong>#{{ up_next.id }}</strong> · {{ up_next.user.name }} · {{ up_next.service.name }}
       {% else %}
         No one is waiting.
       {% endif %}
@@ -116,9 +116,9 @@
           <tr {% if up_next and t.id == up_next.id %}class="table-active"{% endif %}>
             <td>
               <strong>#{{ t.id }}</strong><br>
-              <small class="text-body-secondary">{{ t.name }}</small>
+              <small class="text-body-secondary">{{ t.user.name }}</small>
             </td>
-            <td class="small">{{ names[t.service_id] }}</td>
+            <td class="small">{{ t.service.name }}</td>
             <td>
               <span class="badge text-bg-{{ 'success' if t.status == 'called' else 'warning' }}">
                 {{ t.status|capitalize }}

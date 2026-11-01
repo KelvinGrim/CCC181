@@ -12,6 +12,7 @@
         <p class="text-body-secondary mb-0">Ticket number</p>
         <p class="display-1 fw-bold mb-0">#{{ ticket.id }}</p>
         <p class="mb-0">{{ service.name }}</p>
+        <p class="small text-body-secondary mb-0">Joined {{ ticket.created_at|local }}</p>
       </div>
     </div>
   </div>
@@ -62,6 +63,7 @@
         <thead>
           <tr>
             <th scope="col">Ticket</th>
+            <th scope="col">Service</th>
             <th scope="col">Status</th>
           </tr>
         </thead>
@@ -69,10 +71,11 @@
           {% for t in queue %}
           <tr {% if t.id == ticket.id %}class="table-primary fw-bold"{% endif %}>
             <td>#{{ t.id }}{% if t.id == ticket.id %} (you){% endif %}</td>
+            <td>{{ t.service.name }}</td>
             <td>{{ t.status|capitalize }}</td>
           </tr>
           {% else %}
-          <tr><td colspan="2">No tickets in this queue.</td></tr>
+          <tr><td colspan="3">No tickets in this queue.</td></tr>
           {% endfor %}
         </tbody>
       </table>

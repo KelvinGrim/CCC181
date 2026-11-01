@@ -12,7 +12,8 @@ from flask import Flask, abort, flash, jsonify, redirect, render_template, reque
 from flask_migrate import Migrate
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-
+from datetime import timedelta, timezone
+from sqlalchemy import and_, func
 from models import Service, Ticket, User, db
 
 load_dotenv()
@@ -31,41 +32,58 @@ migrate = Migrate(app, db)
 
 
 
-
 NOTIFY_AT = 3  # customer is told they are "near" when their position is 3 or less
 
+PH_TIME = timezone(timedelta(hours=8))  # Philippine time has no daylight saving
+
+
+@app.template_filter("local")
+def local_time(value):
+    """Show a database time in Philippine time, e.g. Oct 26, 08:01 AM."""
+    return value.astimezone(PH_TIME).strftime("%b %d, %I:%M %p") if value else ""
+
+
+def people_ahead(t):
+    """Count tickets still waiting that joined before t."""
+    stmt = (db.select(func.count())
+            .select_from(Ticket)
+            .where(Ticket.status == "waiting",
+                   Ticket.created_at < t.created_at))
+    return db.session.scalar(stmt)
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-
 @app.get("/queue/<int:ticket_id>")
 def ticket(ticket_id):
-    t = next((t for t in TICKETS if t["number"] == ticket_id), None)
-    if t is None:
-        abort(404)
-    queue = [x for x in TICKETS if x["status"] in ("waiting", "called")]
-    ahead = [x for x in queue
-             if x["status"] == "waiting" and x["number"] < t["number"]]
-    service = next(s for s in SERVICES if s["id"] == t["service_id"])
+    t = db.get_or_404(Ticket, ticket_id)
+    queue = db.session.scalars(
+        db.select(Ticket)
+        .where(Ticket.status.in_(["waiting", "called"]))
+        .order_by(Ticket.created_at)
+    ).all()
+    ahead = people_ahead(t)
+    near = t.status == "waiting" and ahead + 1 <= NOTIFY_AT
+    return render_template("ticket.html", ticket=t, service=t.service,
+                           ahead=ahead, queue=queue, near=near)
 
-    position = len(ahead) + 1
-    near = t["status"] == "waiting" and position <= NOTIFY_AT
-
-    return render_template("ticket.html", ticket=t, service=service,
-                           ahead=len(ahead), queue=queue, near=near)
-
+@app.get("/queue/<int:ticket_id>/status.json")
+def ticket_status(ticket_id):
+    t = db.get_or_404(Ticket, ticket_id)
+    ahead = people_ahead(t)
+    near = t.status == "waiting" and ahead + 1 <= NOTIFY_AT
+    return {"status": t.status, "ahead": ahead, "near": near}
 
 @app.post("/queue/<int:ticket_id>/leave")
 def leave(ticket_id):
-    t = next((t for t in TICKETS if t["number"] == ticket_id), None)
-    if t is None:
-        abort(404)
-    t["status"] = "no-show"
-    flash(f"You left the queue. Ticket #{ticket_id} was cancelled.", "info")
+    t = db.get_or_404(Ticket, ticket_id)
+    if t.status == "waiting":
+        t.status = "left"
+        t.closed_at = func.now()
+        db.session.commit()
+        flash(f"You left the queue. Ticket #{ticket_id} was cancelled.", "info")
     return redirect(url_for("index"))
-
 
 def all_services():
     return db.session.scalars(
@@ -120,51 +138,63 @@ def join():
 @app.get("/staff")
 def staff_dashboard():
     service_id = request.args.get("service_id", type=int)
-    queue = [t for t in TICKETS if t["status"] in ("waiting", "called")]
+    stmt = (db.select(Ticket)
+            .where(Ticket.status.in_(["waiting", "called"]))
+            .order_by(Ticket.created_at))
     if service_id:
-        queue = [t for t in queue if t["service_id"] == service_id]
-    names = {s["id"]: s["name"] for s in SERVICES}
+        stmt = stmt.where(Ticket.service_id == service_id)
+    queue = db.session.scalars(stmt).all()
 
-    current = next((t for t in queue if t["status"] == "called"), None)
-    up_next = next((t for t in queue if t["status"] == "waiting"), None)
+    # Now serving and Up next ignore the filter, so the filter only changes the list
+    current = db.session.scalar(
+        db.select(Ticket).where(Ticket.status == "called")
+        .order_by(Ticket.created_at).limit(1))
+    up_next = db.session.scalar(
+        db.select(Ticket).where(Ticket.status == "waiting")
+        .order_by(Ticket.created_at).limit(1))
 
-    # ★ feature: how many are waiting per service
-    waiting_counts = {s["name"]: sum(1 for t in TICKETS
-                                     if t["status"] == "waiting" and t["service_id"] == s["id"])
-                      for s in SERVICES}
+    # ★ waiting count per service
+    rows = db.session.execute(
+        db.select(Service.name, func.count(Ticket.id))
+        .outerjoin(Ticket, and_(Ticket.service_id == Service.id,
+                                Ticket.status == "waiting"))
+        .group_by(Service.id, Service.name)
+        .order_by(Service.name)
+    ).all()
+    waiting_counts = {name: count for name, count in rows}
 
-    return render_template("staff.html", queue=queue, services=SERVICES, names=names,
+    return render_template("staff.html", queue=queue, services=all_services(),
                            selected=service_id, current=current, up_next=up_next,
                            waiting_counts=waiting_counts)
-
 
 @app.post("/staff/tickets/<int:ticket_id>/<action>")
 def staff_action(ticket_id, action):
     new_status = {"call": "called", "serve": "served", "no-show": "no-show"}.get(action)
-    t = next((t for t in TICKETS if t["number"] == ticket_id), None)
+    t = db.session.get(Ticket, ticket_id)
     if t is None or new_status is None:
         abort(404)
 
-    # Finish the current customer before calling someone else
-    if action == "call" and any(x["status"] == "called" for x in TICKETS):
-        flash("Mark the current ticket as Served or No-show before calling the next one.", "warning")
-        return redirect(url_for("staff_dashboard"))
+    if action == "call":
+        if t.status != "waiting":
+            flash(f"Ticket #{ticket_id} is not waiting.", "warning")
+            return redirect(url_for("staff_dashboard"))
+        already_called = db.session.scalar(
+            db.select(func.count()).select_from(Ticket).where(Ticket.status == "called"))
+        if already_called:
+            flash("Mark the current ticket as Served or No-show before calling the next one.", "warning")
+            return redirect(url_for("staff_dashboard"))
+        t.status = "called"
+        t.called_at = func.now()
+    else:
+        if t.status != "called":
+            flash(f"Only a called ticket can be marked {new_status}.", "warning")
+            return redirect(url_for("staff_dashboard"))
+        t.status = new_status
+        t.closed_at = func.now()
 
-    t["status"] = new_status
+    db.session.commit()
     flash(f"Ticket #{ticket_id} marked {new_status}.", "info")
     return redirect(url_for("staff_dashboard"))
-
-@app.get("/queue/<int:ticket_id>/status.json")
-def ticket_status(ticket_id):
-    t = next((t for t in TICKETS if t["number"] == ticket_id), None)
-    if t is None:
-        abort(404)
-    queue = [x for x in TICKETS if x["status"] in ("waiting", "called")]
-    ahead = len([x for x in queue
-                 if x["status"] == "waiting" and x["number"] < t["number"]])
-    near = t["status"] == "waiting" and ahead + 1 <= NOTIFY_AT
-    return jsonify(status=t["status"], ahead=ahead, near=near,
-                   queue=[[x["number"], x["status"]] for x in queue])
 
 @app.route("/hello")
 def hello():
