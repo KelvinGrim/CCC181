@@ -5,6 +5,7 @@ Run it with:
 then open http://127.0.0.1:5000
 """
 import os
+import re
 
 from dotenv import load_dotenv
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
@@ -26,33 +27,17 @@ migrate = Migrate(app, db)
 # Sample data for the demo. It lives in memory, so it resets every time the
 # server restarts. A real app would save tickets in a database later.
 
-SERVICES = [
-    {"id": 1, "name": "Deposit / Withdrawal"},
-    {"id": 2, "name": "Account Openning"},
-    {"id": 3, "name": "Loans"}
-]
 
-COUNTER = [
 
-    {"id": 1, "name": "Counter 1", "service_ids": [1]},
-    {"id": 2, "name": "Counter 2", "service_ids": [1, 2]},
-    {"id": 3, "name": "Counter 3", "service_ids": [3]},
-]
+
+
 
 NOTIFY_AT = 3  # customer is told they are "near" when their position is 3 or less
 
-TICKETS = [
-    {"number": 1, "name": "Maria Santos", "email": "maria@example.com", "service_id": 1, "status": "called",  "counter_id": 1},
-    {"number": 2, "name": "Jose Reyes",   "email": "jose@example.com",  "service_id": 3, "status": "waiting", "counter_id": None},
-    {"number": 3, "name": "Ana Cruz",     "email": "ana@example.com",   "service_id": 1, "status": "waiting", "counter_id": None},
-    {"number": 4, "name": "Ben Lim",      "email": "ben@example.com",   "service_id": 1, "status": "waiting", "counter_id": None},
-]
 
 @app.route("/")
 def index():
-    # render_template looks inside the templates/ folder and passes
-    # keyword arguments to the template as variables.
-    return render_template("index.html", name="Ana", tickets=TICKETS)
+    return render_template("index.html")
 
 
 @app.get("/queue/<int:ticket_id>")
@@ -82,9 +67,15 @@ def leave(ticket_id):
     return redirect(url_for("index"))
 
 
+def all_services():
+    return db.session.scalars(
+        db.select(Service).where(Service.is_active).order_by(Service.name)
+    ).all()
+
+
 @app.get("/join")
 def join_form():
-    return render_template("join.html", services=SERVICES, form={})
+    return render_template("join.html", services=all_services(), form={})
 
 
 @app.post("/join")
@@ -93,24 +84,38 @@ def join():
     name = form.get("name", "").strip()
     email = form.get("email", "").strip().lower()
     service_id = form.get("service_id", type=int)
+    service = db.session.get(Service, service_id) if service_id else None
 
     errors = {}
-    if not name:
-        errors["name"] = "Enter your name."
-    if "@" not in email:
+    if not name or len(name) > 100:
+        errors["name"] = "Enter your name (up to 100 characters)."
+    if not re.fullmatch(r"[^@\s]+@[^@\s]+", email) or len(email) > 120:
         errors["email"] = "Enter a valid email address."
-    if service_id not in [s["id"] for s in SERVICES]:
+    if service is None or not service.is_active:
         errors["service_id"] = "Choose a service."
 
     if errors:
         flash("Please fix the highlighted fields.", "danger")
-        return render_template("join.html", services=SERVICES, form=form, errors=errors), 400
+        return render_template("join.html", services=all_services(),
+                               form=form, errors=errors), 400
 
-    number = TICKETS[-1]["number"] + 1 if TICKETS else 1
-    TICKETS.append({"number": number, "name": name, "email": email,
-                    "service_id": service_id, "status": "waiting"})
-    flash(f"You joined the queue. Your ticket is #{number}.", "success")
-    return redirect(url_for("ticket", ticket_id=number))
+    user = db.session.scalar(db.select(User).filter_by(email=email))
+    if user is None:
+        user = User(name=name, email=email)
+    else:
+        user.name = name
+    ticket = Ticket(user=user, service=service)
+    db.session.add(ticket)
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        flash("Something went wrong saving your ticket. Please try again.", "danger")
+        return render_template("join.html", services=all_services(),
+                               form=form, errors={}), 409
+
+    flash(f"You joined the queue. Your ticket is #{ticket.id}.", "success")
+    return redirect(url_for("ticket", ticket_id=ticket.id))
 
 @app.get("/staff")
 def staff_dashboard():

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Ticket #{{ ticket.number }} · BnkQ{% endblock %}
+{% block title %}Ticket #{{ ticket.id }} · BnkQ{% endblock %}
 
 {% block content %}
 {% set alert = near or ticket.status == "called" %}
@@ -10,7 +10,7 @@
     <div class="card h-100 text-center">
       <div class="card-body">
         <p class="text-body-secondary mb-0">Ticket number</p>
-        <p class="display-1 fw-bold mb-0">#{{ ticket.number }}</p>
+        <p class="display-1 fw-bold mb-0">#{{ ticket.id }}</p>
         <p class="mb-0">{{ service.name }}</p>
       </div>
     </div>
@@ -67,8 +67,8 @@
         </thead>
         <tbody>
           {% for t in queue %}
-          <tr {% if t.number == ticket.number %}class="table-primary fw-bold"{% endif %}>
-            <td>#{{ t.number }}{% if t.number == ticket.number %} (you){% endif %}</td>
+          <tr {% if t.id == ticket.id %}class="table-primary fw-bold"{% endif %}>
+            <td>#{{ t.id }}{% if t.id == ticket.id %} (you){% endif %}</td>
             <td>{{ t.status|capitalize }}</td>
           </tr>
           {% else %}
@@ -89,7 +89,7 @@
           <li>If you can't make it, leave the queue.</li>
         </ul>
         {% if ticket.status == "waiting" %}
-          <form method="post" action="{{ url_for('leave', ticket_id=ticket.number) }}">
+          <form method="post" action="{{ url_for('leave', ticket_id=ticket.id) }}">
             <button type="submit" class="btn btn-outline-danger btn-sm">Leave the queue</button>
           </form>
         {% endif %}
