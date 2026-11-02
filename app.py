@@ -75,15 +75,7 @@ def ticket_status(ticket_id):
     near = t.status == "waiting" and ahead + 1 <= NOTIFY_AT
     return {"status": t.status, "ahead": ahead, "near": near}
 
-@app.post("/queue/<int:ticket_id>/leave")
-def leave(ticket_id):
-    t = db.get_or_404(Ticket, ticket_id)
-    if t.status == "waiting":
-        t.status = "left"
-        t.closed_at = func.now()
-        db.session.commit()
-        flash(f"You left the queue. Ticket #{ticket_id} was cancelled.", "info")
-    return redirect(url_for("index"))
+
 
 def all_services():
     return db.session.scalars(
@@ -167,34 +159,113 @@ def staff_dashboard():
                            selected=service_id, current=current, up_next=up_next,
                            waiting_counts=waiting_counts)
 
+STAFF_ACTIONS = {"call": "called", "serve": "served", "no-show": "no-show"}
+
 @app.post("/staff/tickets/<int:ticket_id>/<action>")
 def staff_action(ticket_id, action):
-    new_status = {"call": "called", "serve": "served", "no-show": "no-show"}.get(action)
-    t = db.session.get(Ticket, ticket_id)
-    if t is None or new_status is None:
+    new_status = STAFF_ACTIONS.get(action)
+    if new_status is None:
         abort(404)
-
-    if action == "call":
-        if t.status != "waiting":
-            flash(f"Ticket #{ticket_id} is not waiting.", "warning")
-            return redirect(url_for("staff_dashboard"))
-        already_called = db.session.scalar(
-            db.select(func.count()).select_from(Ticket).where(Ticket.status == "called"))
-        if already_called:
-            flash("Mark the current ticket as Served or No-show before calling the next one.", "warning")
-            return redirect(url_for("staff_dashboard"))
-        t.status = "called"
+    t = db.get_or_404(Ticket, ticket_id)
+    t.status = new_status
+    
+    if new_status == "called":
         t.called_at = func.now()
     else:
-        if t.status != "called":
-            flash(f"Only a called ticket can be marked {new_status}.", "warning")
-            return redirect(url_for("staff_dashboard"))
-        t.status = new_status
         t.closed_at = func.now()
 
     db.session.commit()
     flash(f"Ticket #{ticket_id} marked {new_status}.", "info")
     return redirect(url_for("staff_dashboard"))
+
+
+@app.post("/queue/<int:ticket_id>/leave")
+def leave(ticket_id):
+    t = db.get_or_404(Ticket, ticket_id)
+    if t.status == "waiting":
+        t.status = "left"
+        t.closed_at = func.now()
+        db.session.commit()
+    flash("You left the queue.", "info")
+    return redirect(url_for("index"))
+
+
+@app.post("/staff/tickets/<int:ticket_id>/delete")
+def delete_ticket(ticket_id):
+    t = db.get_or_404(Ticket, ticket_id)
+    db.session.delete(t)
+    db.session.commit()
+    flash(f"Ticket #{ticket_id} was deleted.", "warning")
+    return redirect(url_for("staff_dashboard"))
+
+def active_services():
+    stmt = db.select(Service).filter_by(is_active=True).order_by(Service.name)
+    return db.session.scalars(stmt).all()
+
+@app.get("/staff/services")
+def services_list():
+    return render_template("services.html", services=all_services())
+
+
+@app.post("/staff/services")
+def service_create():
+    name = request.form.get("name", "").strip()
+    minutes = request.form.get("avg_minutes", type=int)
+    notice = request.form.get("notice", "").strip() or None
+
+    if not name or len(name) > 60 or not minutes or minutes <= 0:
+        flash("Enter a name (up to 60 characters) and minutes greater than 0.", "danger")
+        return redirect(url_for("services_list"))
+
+    db.session.add(Service(name=name, avg_minutes=minutes, notice=notice))
+    try:
+        db.session.commit()
+        flash(f"Service “{name}” added.", "success")
+    except IntegrityError:
+        db.session.rollback()
+        flash(f"A service named “{name}” already exists.", "danger")
+
+    return redirect(url_for("services_list"))
+
+
+@app.post("/staff/services/<int:service_id>/edit")
+def service_edit(service_id):
+    s = db.get_or_404(Service, service_id)
+    name = request.form.get("name", "").strip()
+    minutes = request.form.get("avg_minutes", type=int)
+    notice = request.form.get("notice", "").strip() or None
+    is_active = request.form.get("is_active") == "on"
+
+    if not name or len(name) > 60 or not minutes or minutes <= 0:
+        flash("Invalid service name or average minutes.", "danger")
+        return redirect(url_for("services_list"))
+
+    s.name = name
+    s.avg_minutes = minutes
+    s.notice = notice
+    s.is_active = is_active
+
+    try:
+        db.session.commit()
+        flash(f"Service “{s.name}” updated.", "success")
+    except IntegrityError:
+        db.session.rollback()
+        flash(f"A service named “{name}” already exists.", "danger")
+
+    return redirect(url_for("services_list"))
+
+
+@app.post("/staff/services/<int:service_id>/delete")
+def service_delete(service_id):
+    s = db.get_or_404(Service, service_id)
+    if s.tickets:
+        flash(f"“{s.name}” has tickets, so it cannot be deleted. Turn it off instead.", "danger")
+        return redirect(url_for("services_list"))
+
+    db.session.delete(s)
+    db.session.commit()
+    flash(f"Service “{s.name}” deleted.", "warning")
+    return redirect(url_for("services_list"))
 
 @app.route("/hello")
 def hello():

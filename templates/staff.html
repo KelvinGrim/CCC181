@@ -3,7 +3,10 @@
 
 {% block content %}
 {# COUNTER TEXT #}
-<h1 class="h4 mb-1">Counter 2</h1>
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h1 class="h4 mb-0">Counter 2</h1>
+  <a href="{{ url_for('services_list') }}" class="btn btn-outline-primary btn-sm">Manage Services</a>
+</div>
 <p class="mb-3">
   {# ★ waiting count per service #}
   {% for name, count in waiting_counts.items() %}
@@ -108,7 +111,9 @@
           <tr>
             <th scope="col">Ticket</th>
             <th scope="col">Service</th>
+            <th scope="col">Joined</th>
             <th scope="col">Status</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -119,6 +124,7 @@
               <small class="text-body-secondary">{{ t.user.name }}</small>
             </td>
             <td class="small">{{ t.service.name }}</td>
+            <td class="small">{{ t.created_at|local }}</td>
             <td>
               <span class="badge text-bg-{{ 'success' if t.status == 'called' else 'warning' }}">
                 {{ t.status|capitalize }}
@@ -126,6 +132,12 @@
               {% if up_next and t.id == up_next.id %}
                 <br><span class="badge text-bg-secondary mt-1">Up next</span>
               {% endif %}
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('delete_ticket', ticket_id=t.id) }}"
+                    data-confirm="Delete ticket #{{ t.id }}? This cannot be undone.">
+                <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1">Delete</button>
+              </form>
             </td>
           </tr>
           {% endfor %}
