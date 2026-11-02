@@ -28,7 +28,7 @@
 
       <div class="mb-3">
         <label for="name" class="form-label">Your name</label>
-        <input id="name" name="name" type="text" autocomplete="name" required
+        <input id="name" name="name" type="text" autocomplete="name" required maxlength="100"
                class="form-control {% if errors and errors.name %}is-invalid{% endif %}"
                value="{{ form.get('name', '') }}"
                {% if errors and errors.name %}aria-describedby="name-error"{% endif %}>
@@ -39,7 +39,7 @@
 
       <div class="mb-4">
         <label for="email" class="form-label">Your email</label>
-        <input id="email" name="email" type="email" autocomplete="email" required
+        <input id="email" name="email" type="email" autocomplete="email" required maxlength="120"
                class="form-control {% if errors and errors.email %}is-invalid{% endif %}"
                value="{{ form.get('email', '') }}"
                {% if errors and errors.email %}aria-describedby="email-error"{% endif %}>
