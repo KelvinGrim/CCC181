@@ -22,7 +22,7 @@ Full list: [requirements.md](../requirements.md)
 
 ## ERD
 
-![ERD](pictures/CCC181-ERD.drawio.png)
+![ERD](screenshots/CCC181-ERD.drawio.png)
 
 - One user has many tickets. Each ticket belongs to exactly one user.
 - One service has many tickets. Each ticket is for exactly one service.
