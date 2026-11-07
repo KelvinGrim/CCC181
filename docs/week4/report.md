@@ -9,7 +9,7 @@
 - **Student ID:** 2024-0878
 - **Section:** CS2A
 - **Date:** November,7,2026
-- **Pull request:** [link to your Week 4 pull request]
+- **Pull request:** [Pull request link](https://github.com/KelvinGrim/CCC181/pull/9)
 - **Database:** PostgreSQL 17 in Docker Compose
 
 ## Requirements
