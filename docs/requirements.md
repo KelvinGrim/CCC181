@@ -61,5 +61,5 @@ This is the smallest version that still solves the problem: a customer can join 
 
 | Who (role only) | What they said | What I changed |
 | --- | --- | --- |
-| Bank Customer | "Kapoy jod ug hulat sa banko, dugay kaayo ko matawag samot kung daghan tao. Dili ko makabantay nga hapit na diay akong number dayon." | [e.g. Added FR-19 (Should)] |
+| Bank Customer | "Kapoy jod ug hulat sa banko, dugay kaayo ko matawag samot kung daghan tao. Dili ko makabantay nga hapit na diay akong number ug aha ko nga counter dayon." | Added FR-13 |
 | | | |

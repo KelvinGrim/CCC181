@@ -57,7 +57,7 @@ Every required kind of constraint is used: PRIMARY KEY, FOREIGN KEY (`REFERENCES
 
 ## 2d. ERD
 
-![ERD](CCC181-ERD.drawio.png)
+![ERD](pictures/CCC181-ERD.drawio.png)
 
 **Relationships, read aloud:**
 - One user has many tickets (1 : N). Each ticket belongs to exactly one user.
