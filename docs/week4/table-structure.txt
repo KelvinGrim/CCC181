@@ -1,0 +1,54 @@
+]633;E;for t in users services tickets;a09008ac-c3fa-4fe4-a5d9-ddaf7ebcdae2]633;C                                    Table "public.users"
+ Column |          Type          | Collation | Nullable |              Default              
+--------+------------------------+-----------+----------+-----------------------------------
+ id     | integer                |           | not null | nextval('users_id_seq'::regclass)
+ name   | character varying(100) |           | not null | 
+ email  | character varying(120) |           | not null | 
+ role   | character varying(10)  |           | not null | 'customer'::character varying
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_email_key" UNIQUE CONSTRAINT, btree (email)
+Check constraints:
+    "ck_users_email" CHECK (email::text ~~ '%%_@_%%'::text)
+    "ck_users_role" CHECK (role::text = ANY (ARRAY['customer'::character varying, 'staff'::character varying]::text[]))
+Referenced by:
+    TABLE "tickets" CONSTRAINT "tickets_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+
+                                      Table "public.services"
+   Column    |         Type          | Collation | Nullable |               Default                
+-------------+-----------------------+-----------+----------+--------------------------------------
+ id          | integer               |           | not null | nextval('services_id_seq'::regclass)
+ name        | character varying(60) |           | not null | 
+ is_active   | boolean               |           | not null | true
+ avg_minutes | integer               |           | not null | 5
+ notice      | text                  |           |          | 
+Indexes:
+    "services_pkey" PRIMARY KEY, btree (id)
+    "services_name_key" UNIQUE CONSTRAINT, btree (name)
+Check constraints:
+    "ck_services_avg_minutes" CHECK (avg_minutes > 0)
+Referenced by:
+    TABLE "tickets" CONSTRAINT "tickets_service_id_fkey" FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE RESTRICT
+
+                                       Table "public.tickets"
+   Column    |           Type           | Collation | Nullable |               Default               
+-------------+--------------------------+-----------+----------+-------------------------------------
+ id          | integer                  |           | not null | nextval('tickets_id_seq'::regclass)
+ user_id     | integer                  |           | not null | 
+ service_id  | integer                  |           | not null | 
+ status      | character varying(20)    |           | not null | 'waiting'::character varying
+ is_priority | boolean                  |           | not null | false
+ created_at  | timestamp with time zone |           | not null | now()
+ called_at   | timestamp with time zone |           |          | 
+ closed_at   | timestamp with time zone |           |          | 
+Indexes:
+    "tickets_pkey" PRIMARY KEY, btree (id)
+Check constraints:
+    "ck_tickets_called_at" CHECK (called_at IS NULL OR called_at >= created_at)
+    "ck_tickets_closed_at" CHECK (closed_at IS NULL OR closed_at >= created_at)
+    "ck_tickets_closed_matches_status" CHECK ((status::text = ANY (ARRAY['waiting'::character varying, 'called'::character varying]::text[])) = (closed_at IS NULL))
+    "ck_tickets_status" CHECK (status::text = ANY (ARRAY['waiting'::character varying, 'called'::character varying, 'served'::character varying, 'no-show'::character varying, 'left'::character varying]::text[]))
+Foreign-key constraints:
+    "tickets_service_id_fkey" FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE RESTRICT
+    "tickets_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+

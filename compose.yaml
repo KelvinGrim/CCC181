@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:17
+    container_name: bnkq-db
+    environment:
+      POSTGRES_USER: bnkq
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: bnkq
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bnkq -d bnkq"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
