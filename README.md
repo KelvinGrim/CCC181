@@ -1,109 +1,134 @@
-# CCC181 Application Development and Emerging Technologies
+# ClinicQ: Hello, Flask
 
-## Course Information
+Starter Flask app for **CCC181 Week 2: Git, GitHub & Flask Foundations**.
+It shows the project structure, routes, templates and static files from the slides.
 
-| Item | Details |
-|---|---|
-| Course Code | CCC181 |
-| Course Title | Application Development and Emerging Technologies |
-| Semester | First Semester, AY 2026–2027 |
-| Term Dates | September 2026 – December 2026 |
-| Modality | Asynchronous / Blended Learning |
-| Learning Management System | MSU-IIT Online Learning Environment (MOLE) |
-| Time Zone | Philippine Time (PHT, UTC+8) |
-| Culminating Output | Individually developed, documented, tested, deployed, and demonstrated software application |
+## Project structure
 
-***
+```
+my-app/
+├── app.py              # creates the app and defines routes
+├── requirements.txt    # packages to rebuild the environment
+├── .gitignore          # keeps .venv, caches and secrets out of Git
+├── .venv/              # your virtual environment (not committed)
+├── templates/          # Jinja2 HTML files for render_template()
+│   ├── base.html       # shared layout
+│   ├── index.html      # home page
+│   └── ticket.html     # page for /queue/<ticket_id>
+└── static/             # served at /static/...
+    ├── css/style.css
+    └── js/main.js
+```
 
-## Course Description
+## Routes
 
-This course covers the analysis, design, development, integration, deployment, and evaluation of software applications using web, mobile, cloud, API-based, and other emerging technologies. Each student will identify a relevant user or organizational need, define appropriate software requirements and models, create user-centered interface prototypes, implement application features, integrate databases, APIs, and external services; and deploy a functional application using contemporary frameworks and development tools.
+| URL | View function | What you see |
+|---|---|---|
+| `/` | `index()` | "Hello, Ana!" and a list of tickets, rendered with `index.html` |
+| `/queue/<int:ticket_id>` | `ticket()` | A page for that ticket, e.g. `/queue/12` |
+| `/hello` | `hello()` | The plain text "Hello, CCC181!" |
 
-The course emphasizes practical application development, appropriate technology selection, version control, secure coding, code inspection, functional, usability, and integration testing, technical documentation, and responsible compliance with legal, ethical, accessibility, privacy, and licensing standards. 
+Try `/queue/abc`: the `int` converter only accepts numbers, so Flask returns 404.
 
-***
+## 1. Set up the Python environment
 
-## Course Learning Outcomes (CLO)
+```bash
+# create (once per project)
+python -m venv .venv
 
-1. **Analyze and design:** Analyze user and organizational needs, then develop clear software requirements, models, and user-centered interface prototypes for an application that appropriately incorporates web, mobile, cloud, API-based, or other emerging technologies.
+# activate (every new terminal)
+.venv\Scripts\activate          # Windows
+source .venv/bin/activate       # macOS/Linux
 
-2. **Develop and deploy:** Design, implement, document, and deploy a functional software application using appropriate programming frameworks, databases, version-control practices, APIs, and contemporary development tools while observing coding, security, legal, ethical, and licensing standards.
+# install the packages
+pip install -r requirements.txt
+```
 
-3. **Evaluate and communicate:** Participate constructively in peer code inspection and application evaluation; conduct functional, usability, and integration testing; evaluate application quality; and communicate the project’s design, implementation, results, limitations, and societal impact through technical documentation and an individual final demonstration.
+Your prompt shows `(.venv)` when the environment is active. Some systems use `python3` or `py` instead of `python`.
+If PowerShell blocks the activate script, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once, or use Command Prompt.
 
-***
+If you add more packages later, record them with:
 
-## Integrated Course Outcomes
+```bash
+pip freeze > requirements.txt
+```
 
-| CLO | Primary Evidence of Learning |
-|---|---|
-| CLO 1 | User and organizational needs analysis, problem statement, requirements, user stories and acceptance criteria, models, technology-selection rationale, wireframes, interface prototype, and design revisions |
-| CLO 2 | Individual GitHub repository, laboratory exercises, front-end implementation, API integration, database, authentication and authorization where appropriate, emerging-technology feature, security checks, technical documentation, and deployed application |
-| CLO 3 | Peer code-review records, functional tests, usability evaluation, integration tests, defect log, quality report, ethics and societal-impact analysis, individual reflection, and final application demonstration and defense |
+## 2. Run the app
 
+```bash
+flask --app app run --debug
+```
 
-***
+Open http://127.0.0.1:5000. With `--debug`, the server reloads every time you save a file. Never use debug mode in production.
 
-## Prerequisites and Expectations
+## 3. Put it on GitHub
 
-Students are expected to have prior experience with programming fundamentals, basic problem solving, and elementary data structures. Familiarity with HTML, CSS, JavaScript, Python, Java, or another programming environment is helpful. Students are not expected to begin the course as experts in every required technology; however, they must be prepared to learn unfamiliar frameworks, APIs, deployment platforms, or development tools independently and responsibly.
+### Once per computer
 
-Each student will create a distinct individual application. Students may discuss concepts, participate in peer review, test one another’s interfaces, and share general debugging strategies, but they may not implement assessed project features for another student or submit substantially identical applications or codebases.
+```bash
+git config --global user.name "Your Name"
+git config --global user.email you@g.msuiit.edu.ph   # same email as your GitHub account
+git config --list
+```
 
-Students need regular access to:
+### Create the local repository and first commit
 
-- A personal computer or laptop capable of running the required development tools
-- Internet access sufficient for MOLE, GitHub, online documentation, API use, and cloud deployment
-- A GitHub account
-- MOLE access
-- A code editor or integrated development environment
-- A modern web browser with developer tools
-- An instructor-approved communication channel
-- Any approved platform account required for databases, APIs, authentication, or deployment
+```bash
+git init
+git branch -M main
+git status              # .venv should NOT appear, thanks to .gitignore
+git add .
+git commit -m "Add Flask starter app"
+```
 
-Students who anticipate device, connectivity, accessibility, health, work, family, or other concerns that may affect participation should communicate privately with the instructor as early as possible.
+### Connect to GitHub and push
 
-***
+1. On GitHub, create a new **empty** repository (no README, no .gitignore).
+2. Copy its URL, then:
 
-## Learning Resources
+```bash
+git remote add origin <repo-url>
+git push -u origin main
+```
 
-### Required tools
+GitHub does not accept your account password for Git over HTTPS. Sign in through Git Credential Manager or the GitHub CLI, or use a personal access token or SSH key.
 
-- MOLE
-- GitHub and Git
-- A code editor or IDE, such as Visual Studio Code
-- A modern browser with developer tools
-- An API development and testing tool, such as Postman, Bruno, Insomnia, or an approved equivalent
-- A diagramming or wireframing tool, such as draw.io, Figma, Penpot, or an equivalent approved tool
-- A database and deployment platform appropriate to the approved project
+### Everyday loop
 
-### Recommended references
+```bash
+git pull origin main     # before you start working
+git status
+git add <file>
+git commit -m "Add join-queue form"
+git push origin main     # when you have commits to share
+```
 
-#### Primary references
+## 4. Lab: ship it through a pull request
 
-- Mozilla Developer Network. *MDN Web Docs: Learn Web Development* and *MDN Curriculum*. The MDN curriculum provides a structured summary of essential front-end development skills and is designed to support educators in creating course units and assessments.
-- Open Worldwide Application Security Project. *OWASP Top 10:2025*. The OWASP Top 10 is a developer awareness document covering major web-application security risks, including broken access control, security misconfiguration, software supply-chain failures, injection, insecure design, authentication failures, and exceptional-condition handling.
+1. On GitHub, open an issue: **"Set up Flask starter app"**.
+2. Pull the latest `main`, then create a branch:
+   ```bash
+   git switch main
+   git pull origin main
+   git switch -c feature/flask-setup
+   ```
+3. Create `.venv`, install Flask, write `requirements.txt` and `.gitignore`.
+4. Build `app.py` with a home route and one dynamic route, rendered with `base.html` and `index.html`.
+5. Commit in small steps, then push the branch:
+   ```bash
+   git push -u origin feature/flask-setup
+   ```
+6. On GitHub, click **Compare & pull request** and write `Closes #N` in the description (N is your issue number). Merge it, then:
+   ```bash
+   git switch main
+   git pull origin main
+   ```
 
-#### Supplementary references
+**Early finishers:** add another static CSS rule linked with `url_for`, or a third route based on one Must feature from your project milestone.
 
-- Official documentation for HTML, CSS, JavaScript, TypeScript, Git, and GitHub
-- Official documentation for the selected front-end framework, back-end technology, database, APIs, authentication service, testing tools, and deployment platform
-- Relevant platform accessibility, privacy, security, and software-licensing documentation
+## Commit message tips
 
-***
-
-## Responsible AI Use
-
-Generative AI may be used for instructor-permitted brainstorming, explanation, debugging, interface alternatives, test generation, code suggestions, or documentation review. AI output must be treated as untrusted until it is understood, checked, tested, secured, and adapted to the project. OWASP explicitly identifies inappropriate trust in AI-generated code as an application-development concern.
-
-Each major submission must include an **AI and External Assistance Declaration** identifying:
-
-- The tools, services, people, tutorials, or code sources consulted
-- The purpose of each substantial use
-- Representative prompts or requests when relevant
-- The generated or borrowed material that was accepted, modified, or rejected
-- The method used to verify correctness, security, licensing, and project fit
-
-Undisclosed generated work, fabricated evidence, unlicensed reuse, or inability to explain submitted code may be treated as an academic-integrity concern. The student remains accountable for every line of submitted code and every claim in the documentation.
-
-***
+- Short summary in the imperative: "Add...", "Fix..."
+- One logical change per commit
+- Commit early and often
+- Good: "Add join-queue form". Unhelpful: "update", "asdf", "final na talaga".
